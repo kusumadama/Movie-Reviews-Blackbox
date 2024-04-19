@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Review Website</title>
+  <style>
+    /* General styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      text-decoration: none;
+      color: #333;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #444;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="submit"] {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #444;
+    }
+
+    textarea {
+      height: 100px;
+    }
+
+    /* Header styles */
+    header {
+      background-color: #333;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+    }
+
+    header .logo {
+      height: 50px;
+    }
+
+    header nav {
+      display: flex;
+      align-items: center;
+    }
+
+    header nav a {
+      color: #fff;
+      margin-right: 20px;
+    }
+
+    header .dark-light-mode {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    header .dark-light-mode i {
+      font-size: 20px;
+      margin-right: 10px;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    header .dark-light-mode i:last-child {
+      opacity: 0;
+    }
+
+    header .dark-light-mode[data-theme="dark"] i:first-child {
+      transform: rotate(180deg);
+    }
+
+    header .dark-light-mode[data-theme="dark"] i:last-child {
+      opacity: 1;
+    }
+
+    /* Hero section styles */
+    .hero {
+      background-image: url('hero-background.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #fff;
+      padding: 0 20px;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .hero input {
+      width: 50%;
+      margin-bottom: 20px;
+    }
+
+    .hero button {
+      width: 20%;
+    }
+
+    /* Search results section styles */
+    #search-results {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    #search-results .movie {
+      width: 30%;
+      margin: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #search-results .movie:hover {
+      transform: translateY(-5px);
+    }
+
+    #search-results .movie img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <a href="index.html"><img src="logo.png" alt="Movie Review Website"></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+        <li><a href="upcoming.html">Upcoming Movies</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="dark-light-mode">
+      <i class="fas fa-moon"></i>
+      <i class="fas fa-sun"></i>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <h1>Latest Movie Reviews and Trailers</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie…">
+      <button id="searchButton">Search</button>
+      <div class="buttons">
+        <button id="nowPlayingButton" class="button1">Now Playing</button>
+        <button id="topRatedButton" class="button1">Top Rated</button>
+      </div>
+      <div id="search-results"></div>
+    </section>
+  </main>
+  <footer>
+    <div class="copyright">Copyright &copy; 2023 All Rights Reserved</div>
+    <div class="footer-links">
+      <ul>
+        <li><a href="">About Us</a></li>
+        <li><a href="">Contact Us</a></li>
+        <li><a href="">Terms</a></li>
+        <li><a href="">License</a></li>
+      </ul>
+    </div>
+  </footer>
+  <script>
+    // Movie API URL
+    const API_URL = 'https://api.themoviedb.org/3';
+    const API_KEY = 'YOUR_API_KEY';
+
+    // Get the search input
+    const searchInput = document.getElementById('searchInput');
+
+    // Get the search results section
+    const searchResultsSection = document.getElementById('search-results');
+
+    // Function to fetch movies from the API
+    async function fetchMovies(url) {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data;
+    }
+
+    // Function to display search results
+    function displaySearchResults(movies) {
+      searchResultsSection.innerHTML = '';
+      movies.forEach(movie => {
+        const movieElement = document.createElement('div');
+        movieElement.classList.add('movie');
+        movieElement.innerHTML = `
+          <img src="${IMG_URL + movie.poster_path}" alt="${movie.title}">
+          <h2>${movie.title}</h2>
+          <p>${movie.overview}</p>
+          <a href="review.html?id=${movie.id}">Read Review</a>
+        `;
+        searchResultsSection.appendChild(movieElement);
+      });
+    }
+
+    // Event listener for search button
+    document.getElementById('searchButton').addEventListener('click', async () => {
+      const query = searchInput.value;
+      const url = `${API_URL}/search/movie?api_key=${API_KEY}&query=${query}`;
+      const movies = await fetchMovies(url);
+      displaySearchResults(movies.results);
+    });
+
+    // Event listener for now playing button
+    document.getElementById('nowPlayingButton').addEventListener('click', async () => {
+      const url = `${API_URL}/movie/now_playing?api_key=${API_KEY}`;
+      const movies = await fetchMovies(url);
+      displaySearchResults(movies.results);
+    });
+
+    // Event listener for top rated button
+    document.getElementById('topRatedButton').addEventListener('click', async () => {
+      const url = `${API_URL}/movie/top_rated?api_key=${API_KEY}`;
+      const movies = await fetchMovies(url);
+      displaySearchResults(movies.results);
+    });
+  </script>
+</body>
+</html>
